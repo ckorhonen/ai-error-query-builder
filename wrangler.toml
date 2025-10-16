@@ -1,0 +1,44 @@
+name = "ai-error-query-builder"
+main = "workers/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Account ID - Update with your Cloudflare account ID
+# account_id = "your-account-id-here"
+
+# Workers AI binding for OpenAI integration via AI Gateway
+[ai]
+binding = "AI"
+
+# D1 Database for query history
+[[d1_databases]]
+binding = "DB"
+database_name = "ai-query-builder-db"
+database_id = "" # Will be populated after creating D1 database
+
+# Environment variables
+[vars]
+ENVIRONMENT = "production"
+
+# Build configuration
+[build]
+command = "npm run build"
+
+# Static assets from Vite build
+[site]
+bucket = "./dist"
+
+# Routes
+[[routes]]
+pattern = "*"
+zone_name = "" # Your domain (optional)
+
+# Development configuration
+[dev]
+ip = "0.0.0.0"
+port = 8787
+local_protocol = "http"
+
+# Secrets (set via wrangler secret put)
+# OPENAI_API_KEY
+# AI_GATEWAY_ID (optional - for Cloudflare AI Gateway)
