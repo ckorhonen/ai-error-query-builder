@@ -1,9 +1,6 @@
 import { PagesFunction } from '@cloudflare/workers-types';
 
-interface Env {
-  // Add environment variables here if needed in the future
-  // Example: DATABASE: D1Database;
-}
+// Env interface removed as it was empty and unused
 
 interface ValidateRequest {
   query: string;
@@ -18,7 +15,7 @@ interface ValidateResponse {
   };
 }
 
-export const onRequestPost: PagesFunction<Env> = async (context) => {
+export const onRequestPost: PagesFunction = async (context) => {
   const { request } = context;
 
   // CORS headers
@@ -30,7 +27,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   // Handle OPTIONS request for CORS
   if (request.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { 
+      headers: corsHeaders,
+      webSocket: null
+    });
   }
 
   try {
@@ -48,6 +48,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       };
       return new Response(JSON.stringify(response), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        webSocket: null
       });
     }
 
@@ -83,8 +84,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      webSocket: null
     });
   } catch {
+    // Removed unused 'error' parameter
     return new Response(
       JSON.stringify({
         valid: false,
@@ -96,6 +99,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        webSocket: null
       }
     );
   }
