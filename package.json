@@ -1,9 +1,9 @@
 {
   "name": "ai-error-query-builder",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "AI-powered tool for converting natural language to monitoring platform queries",
+  "description": "AI-powered tool for converting natural language to monitoring platform queries - Now on Cloudflare Workers!",
   "author": "Chris Korhonen",
   "license": "MIT",
   "scripts": {
@@ -18,7 +18,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "pages:dev": "wrangler pages dev dist --compatibility-date=2024-01-01",
+    "pages:deploy": "npm run build && wrangler pages deploy dist",
+    "cf:login": "wrangler login",
+    "cf:deploy": "npm run pages:deploy"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -28,6 +32,7 @@
     "highlight.js": "^11.10.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241218.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
@@ -38,19 +43,21 @@
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/ui": "^2.1.8",
     "autoprefixer": "^10.4.20",
-    "eslint": "^9.15.0",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
     "jsdom": "^26.0.0",
+    "openai": "^4.77.3",
     "postcss": "^8.4.49",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
     "vitest": "^2.1.8",
-    "@vitest/coverage-v8": "^2.1.8"
+    "@vitest/coverage-v8": "^2.1.8",
+    "wrangler": "^3.95.0"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -69,6 +76,10 @@
     "elasticsearch",
     "splunk",
     "query-builder",
-    "nlp"
+    "nlp",
+    "cloudflare-workers",
+    "cloudflare-pages",
+    "openai",
+    "llm"
   ]
 }

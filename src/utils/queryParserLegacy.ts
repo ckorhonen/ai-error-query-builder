@@ -1,104 +1,41 @@
-import type { Platform, QueryResult, ConversionError } from '../types'
+/**
+ * Legacy query parser (mock implementation)
+ * Kept for fallback and development without API
+ */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+import type { Platform, QueryResult, ConversionError } from '../types'
 
 /**
  * Converts natural language error descriptions to platform-specific queries
- * Now uses real LLM API via Cloudflare Workers!
+ * This is a fallback - production uses the Cloudflare Workers API
  */
-export async function convertToQuery(
+export async function convertToQueryLegacy(
   naturalLanguage: string,
   platform: Platform
 ): Promise<QueryResult> {
+  // Simulate API call delay
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+
   // Basic validation
   if (!naturalLanguage.trim()) {
     throw new Error('Please enter a description of the error')
   }
 
-  try {
-    const response = await fetch(`${API_BASE_URL}/convert`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        naturalLanguage,
-        platform,
-      }),
-    })
+  const query = generateQuery(naturalLanguage, platform)
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || `API request failed: ${response.status}`)
-    }
-
-    const result = await response.json()
-    return result as QueryResult
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error
-    }
-    throw new Error('Failed to convert query. Please try again.')
+  return {
+    platform,
+    query,
+    originalInput: naturalLanguage,
+    timestamp: Date.now(),
   }
 }
 
 /**
- * Validate query syntax for a specific platform
+ * Generate platform-specific query syntax
+ * Basic pattern matching (not AI-powered)
  */
-export async function validateQuery(
-  query: string,
-  platform: Platform
-): Promise<ConversionError | null> {
-  if (!query.trim()) {
-    return {
-      message: 'Query cannot be empty',
-      code: 'EMPTY_QUERY',
-      platform,
-    }
-  }
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/validate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query,
-        platform,
-      }),
-    })
-
-    if (!response.ok) {
-      return {
-        message: 'Failed to validate query',
-        code: 'VALIDATION_ERROR',
-        platform,
-      }
-    }
-
-    const result = await response.json()
-    if (!result.valid && result.error) {
-      return {
-        message: result.error.message,
-        code: result.error.code,
-        platform,
-      }
-    }
-
-    return null
-  } catch (error) {
-    // Return null on validation errors to allow queries through
-    console.warn('Validation request failed:', error)
-    return null
-  }
-}
-
-/**
- * Legacy function for local query generation (fallback)
- * This is kept as a backup but should rarely be used
- */
-export function generateQueryLocally(input: string, platform: Platform): string {
+function generateQuery(input: string, platform: Platform): string {
   const lowerInput = input.toLowerCase()
 
   // Extract common patterns
@@ -111,26 +48,55 @@ export function generateQueryLocally(input: string, platform: Platform): string 
   const hasApi = lowerInput.includes('api')
   const hasAuth = lowerInput.includes('auth') || lowerInput.includes('login')
 
-  const patterns = {
-    hasError,
-    hasException,
-    has500,
-    has404,
-    hasTimeout,
-    hasDatabase,
-    hasApi,
-    hasAuth,
-  }
-
   switch (platform) {
     case 'sentry':
-      return generateSentryQuery(patterns)
+      return generateSentryQuery({
+        hasError,
+        hasException,
+        has500,
+        has404,
+        hasTimeout,
+        hasDatabase,
+        hasApi,
+        hasAuth,
+      })
+
     case 'datadog':
-      return generateDatadogQuery(patterns)
+      return generateDatadogQuery({
+        hasError,
+        hasException,
+        has500,
+        has404,
+        hasTimeout,
+        hasDatabase,
+        hasApi,
+        hasAuth,
+      })
+
     case 'elasticsearch':
-      return generateElasticsearchQuery(patterns)
+      return generateElasticsearchQuery({
+        hasError,
+        hasException,
+        has500,
+        has404,
+        hasTimeout,
+        hasDatabase,
+        hasApi,
+        hasAuth,
+      })
+
     case 'splunk':
-      return generateSplunkQuery(patterns)
+      return generateSplunkQuery({
+        hasError,
+        hasException,
+        has500,
+        has404,
+        hasTimeout,
+        hasDatabase,
+        hasApi,
+        hasAuth,
+      })
+
     default:
       throw new Error(`Unsupported platform: ${platform}`)
   }
@@ -223,4 +189,44 @@ function generateSplunkQuery(patterns: QueryPatterns): string {
   conditions.push('| stats count by host, source')
 
   return conditions.join(' ')
+}
+
+/**
+ * Validate query syntax for a specific platform
+ */
+export function validateQuery(query: string, platform: Platform): ConversionError | null {
+  if (!query.trim()) {
+    return {
+      message: 'Query cannot be empty',
+      code: 'EMPTY_QUERY',
+      platform,
+    }
+  }
+
+  // Platform-specific validation
+  switch (platform) {
+    case 'elasticsearch':
+      try {
+        JSON.parse(query)
+      } catch {
+        return {
+          message: 'Invalid JSON syntax for Elasticsearch query',
+          code: 'INVALID_JSON',
+          platform,
+        }
+      }
+      break
+
+    case 'splunk':
+      if (!query.includes('index=')) {
+        return {
+          message: 'Splunk queries should specify an index',
+          code: 'MISSING_INDEX',
+          platform,
+        }
+      }
+      break
+  }
+
+  return null
 }
