@@ -1,6 +1,6 @@
 import { PagesFunction } from '@cloudflare/workers-types';
 
-interface Env {}
+// Env interface removed as it was empty and unused
 
 interface ValidateRequest {
   query: string;
@@ -15,7 +15,7 @@ interface ValidateResponse {
   };
 }
 
-export const onRequestPost: PagesFunction<Env> = async (context) => {
+export const onRequestPost: PagesFunction = async (context) => {
   const { request } = context;
 
   // CORS headers
@@ -81,7 +81,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error) {
+  } catch {
+    // Removed unused 'error' parameter
     return new Response(
       JSON.stringify({
         valid: false,
