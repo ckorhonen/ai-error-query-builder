@@ -113,7 +113,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   // Handle OPTIONS request for CORS
   if (request.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { 
+      headers: corsHeaders,
+      webSocket: null
+    });
   }
 
   try {
@@ -125,14 +128,22 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     if (!naturalLanguage || !naturalLanguage.trim()) {
       return new Response(
         JSON.stringify({ error: 'Please enter a description of the error' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          webSocket: null
+        }
       );
     }
 
     if (!['sentry', 'datadog', 'elasticsearch', 'splunk'].includes(platform)) {
       return new Response(
         JSON.stringify({ error: 'Invalid platform specified' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          webSocket: null
+        }
       );
     }
 
@@ -186,6 +197,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         'Content-Type': 'application/json',
         'Cache-Control': 'public, max-age=3600',
       },
+      webSocket: null
     });
   } catch (error) {
     console.error('Error in convert API:', error);
@@ -197,6 +209,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        webSocket: null
       }
     );
   }
