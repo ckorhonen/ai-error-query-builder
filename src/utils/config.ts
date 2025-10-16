@@ -1,5 +1,6 @@
 /**
  * Application configuration
+ * Cloudflare Workers Edition
  */
 
 export const config = {
@@ -9,38 +10,14 @@ export const config = {
     environment: import.meta.env.VITE_ENV || 'production',
   },
   api: {
-    baseUrl: import.meta.env.VITE_API_URL || '/api',
+    baseUrl: import.meta.env.VITE_API_BASE_URL || '/api',
+    timeout: 30000, // 30 seconds
   },
   features: {
     analytics: import.meta.env.VITE_ENABLE_ANALYTICS === 'true',
-    history: true, // Always enabled with D1
+    realTimeLLM: true, // Always enabled in Cloudflare Workers version
   },
-  platforms: [
-    {
-      id: 'sentry' as const,
-      name: 'Sentry',
-      description: 'Error tracking and monitoring',
-      icon: '🔍',
-    },
-    {
-      id: 'datadog' as const,
-      name: 'Datadog',
-      description: 'Infrastructure monitoring',
-      icon: '📊',
-    },
-    {
-      id: 'elasticsearch' as const,
-      name: 'Elasticsearch',
-      description: 'Log analytics and search',
-      icon: '🔎',
-    },
-    {
-      id: 'splunk' as const,
-      name: 'Splunk',
-      description: 'Security and analytics',
-      icon: '📈',
-    },
-  ],
+  platforms: ['sentry', 'datadog', 'elasticsearch', 'splunk'] as const,
 } as const
 
-export type Platform = typeof config.platforms[number]['id']
+export type Config = typeof config
