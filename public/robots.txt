@@ -1,0 +1,8 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow crawling of admin or private routes (if any)
+# Disallow: /admin/
+
+Sitemap: https://ai-error-query-builder.vercel.app/sitemap.xml

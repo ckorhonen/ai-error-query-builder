@@ -1,0 +1,17 @@
+{
+  "name": "AI Error Query Builder",
+  "short_name": "QueryBuilder",
+  "description": "AI-powered tool for converting natural language to monitoring platform queries",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "theme_color": "#3b82f6",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "/",
+  "scope": "/"
+}
