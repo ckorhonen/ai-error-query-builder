@@ -1,7 +1,8 @@
-import { useState } from 'react'
-import { Sparkles, AlertCircle, Loader2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Sparkles, AlertCircle, Loader2, History } from 'lucide-react'
 import type { Platform, QueryResult, ConversionError } from '../types'
-import { convertToQuery, validateQuery } from '../utils/queryParser'
+import { convertToQuery, getQueryHistory, type HistoryItem } from '../services/api'
+import { validateQuery } from '../utils/queryParserLegacy'
 import { PlatformSelector } from './PlatformSelector'
 import { QueryResult as QueryResultComponent } from './QueryResult'
 
@@ -11,6 +12,18 @@ export function QueryBuilder() {
   const [result, setResult] = useState<QueryResult | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<ConversionError | null>(null)
+  const [history, setHistory] = useState<HistoryItem[]>([])
+  const [showHistory, setShowHistory] = useState(false)
+
+  // Load history on mount
+  useEffect(() => {
+    loadHistory()
+  }, [])
+
+  const loadHistory = async () => {
+    const items = await getQueryHistory(5)
+    setHistory(items)
+  }
 
   const handleConvert = async () => {
     if (!input.trim()) {
@@ -25,6 +38,7 @@ export function QueryBuilder() {
     setIsLoading(true)
 
     try {
+      // Call the Cloudflare Workers API with real LLM integration
       const queryResult = await convertToQuery(input, platform)
 
       // Validate the generated query
@@ -35,6 +49,9 @@ export function QueryBuilder() {
       }
 
       setResult(queryResult)
+      
+      // Reload history after successful conversion
+      loadHistory()
     } catch (err) {
       setError({
         message: err instanceof Error ? err.message : 'Failed to convert query',
@@ -53,6 +70,12 @@ export function QueryBuilder() {
     }
   }
 
+  const loadFromHistory = (item: HistoryItem) => {
+    setInput(item.input)
+    setPlatform(item.platform)
+    setShowHistory(false)
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Platform Selection */}
@@ -60,17 +83,48 @@ export function QueryBuilder() {
 
       {/* Input Section */}
       <div className="card space-y-4">
-        <div>
-          <label
-            htmlFor="error-description"
-            className="block text-lg font-semibold text-gray-900 mb-2"
-          >
-            Describe Your Error
-          </label>
-          <p className="text-sm text-gray-600">
-            Enter a natural language description of the error you want to query
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <label
+              htmlFor="error-description"
+              className="block text-lg font-semibold text-gray-900 mb-2"
+            >
+              Describe Your Error
+            </label>
+            <p className="text-sm text-gray-600">
+              Enter a natural language description - powered by OpenAI GPT-4o-mini
+            </p>
+          </div>
+          {history.length > 0 && (
+            <button
+              onClick={() => setShowHistory(!showHistory)}
+              className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+            >
+              <History className="h-4 w-4" />
+              History
+            </button>
+          )}
         </div>
+
+        {showHistory && history.length > 0 && (
+          <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+            <h3 className="text-sm font-semibold text-gray-900 mb-2">Recent Queries:</h3>
+            {history.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => loadFromHistory(item)}
+                className="w-full text-left px-3 py-2 text-sm bg-white rounded border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-900 truncate">{item.input}</span>
+                  <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                    {item.platform}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
 
         <textarea
           id="error-description"
@@ -96,7 +150,7 @@ export function QueryBuilder() {
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Converting...
+                Converting with AI...
               </>
             ) : (
               <>
@@ -141,19 +195,19 @@ export function QueryBuilder() {
           <ul className="space-y-2 text-sm text-gray-700">
             <li className="flex items-start">
               <span className="text-primary-600 mr-2">•</span>
-              <span>Show me all 500 errors from the API service</span>
+              <span>Show me all 500 errors from the API service in the last hour</span>
             </li>
             <li className="flex items-start">
               <span className="text-primary-600 mr-2">•</span>
-              <span>Find database timeout errors in the last 24 hours</span>
+              <span>Find database connection timeout errors from yesterday</span>
             </li>
             <li className="flex items-start">
               <span className="text-primary-600 mr-2">•</span>
-              <span>Authentication failures from login endpoint</span>
+              <span>Authentication failures from login endpoint this week</span>
             </li>
             <li className="flex items-start">
               <span className="text-primary-600 mr-2">•</span>
-              <span>All exceptions with 404 status code</span>
+              <span>All JavaScript exceptions with 404 status code</span>
             </li>
           </ul>
         </div>
