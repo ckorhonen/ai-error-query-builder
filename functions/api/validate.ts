@@ -1,6 +1,9 @@
 import { PagesFunction } from '@cloudflare/workers-types';
 
-interface Env {}
+interface Env {
+  // Add environment variables here if needed in the future
+  // Example: DATABASE: D1Database;
+}
 
 interface ValidateRequest {
   query: string;
@@ -81,7 +84,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error) {
+  } catch {
     return new Response(
       JSON.stringify({
         valid: false,
