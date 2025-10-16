@@ -1,18 +1,23 @@
 {
   "name": "ai-error-query-builder",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "description": "AI-powered tool for converting natural language to monitoring platform queries",
   "author": "Chris Korhonen",
   "license": "MIT",
   "scripts": {
     "dev": "vite",
+    "dev:workers": "wrangler dev",
+    "dev:full": "concurrently \"npm run dev\" \"npm run dev:workers\"",
     "build": "tsc && vite build",
+    "build:workers": "esbuild workers/index.ts --bundle --format=esm --outfile=dist-workers/index.js --platform=neutral --external:node:*",
+    "deploy": "npm run build && wrangler deploy",
+    "deploy:db": "wrangler d1 execute ai-query-builder-db --file=./workers/schema.sql",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\" \"workers/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"workers/**/*.ts\"",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
@@ -25,9 +30,11 @@
     "react-dom": "^18.3.1",
     "lucide-react": "^0.454.0",
     "clsx": "^2.1.1",
-    "highlight.js": "^11.10.0"
+    "highlight.js": "^11.10.0",
+    "hono": "^4.0.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250109.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
@@ -38,6 +45,8 @@
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/ui": "^2.1.8",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^8.2.2",
+    "esbuild": "^0.20.0",
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.37.2",
@@ -50,7 +59,8 @@
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
     "vitest": "^2.1.8",
-    "@vitest/coverage-v8": "^2.1.8"
+    "@vitest/coverage-v8": "^2.1.8",
+    "wrangler": "^3.94.0"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -69,6 +79,8 @@
     "elasticsearch",
     "splunk",
     "query-builder",
-    "nlp"
+    "nlp",
+    "cloudflare-workers",
+    "openai"
   ]
 }
