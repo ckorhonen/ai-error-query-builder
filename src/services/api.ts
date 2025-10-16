@@ -2,7 +2,7 @@
  * API Service for communicating with Cloudflare Workers backend
  */
 
-import type { Platform, QueryResult, ConversionError } from '../types'
+import type { Platform, QueryResult } from '../types'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
