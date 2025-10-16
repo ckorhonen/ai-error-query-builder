@@ -1,3 +1,5 @@
+import { PagesFunction } from '@cloudflare/workers-types';
+
 interface Env {}
 
 interface ValidateRequest {
