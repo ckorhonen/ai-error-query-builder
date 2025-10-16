@@ -1,6 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { convertToQuery, validateQuery } from '../queryParser'
-import type { Platform } from '../../types'
 
 describe('queryParser', () => {
   describe('convertToQuery', () => {
@@ -38,30 +37,30 @@ describe('queryParser', () => {
   })
 
   describe('validateQuery', () => {
-    it('validates empty queries', () => {
-      const error = validateQuery('', 'sentry')
+    it('validates empty queries', async () => {
+      const error = await validateQuery('', 'sentry')
       expect(error).not.toBeNull()
       expect(error?.code).toBe('EMPTY_QUERY')
     })
 
-    it('validates Elasticsearch JSON syntax', () => {
+    it('validates Elasticsearch JSON syntax', async () => {
       const invalidJson = '{ invalid json }'
-      const error = validateQuery(invalidJson, 'elasticsearch')
+      const error = await validateQuery(invalidJson, 'elasticsearch')
       expect(error).not.toBeNull()
       expect(error?.code).toBe('INVALID_JSON')
     })
 
-    it('validates Splunk index requirement', () => {
-      const error = validateQuery('source=*api*', 'splunk')
+    it('validates Splunk index requirement', async () => {
+      const error = await validateQuery('source=*api*', 'splunk')
       expect(error).not.toBeNull()
       expect(error?.code).toBe('MISSING_INDEX')
     })
 
-    it('returns null for valid queries', () => {
-      expect(validateQuery('level:error', 'sentry')).toBeNull()
-      expect(validateQuery('status:error', 'datadog')).toBeNull()
-      expect(validateQuery('{"query":{"match_all":{}}}', 'elasticsearch')).toBeNull()
-      expect(validateQuery('index=main status=error', 'splunk')).toBeNull()
+    it('returns null for valid queries', async () => {
+      expect(await validateQuery('level:error', 'sentry')).toBeNull()
+      expect(await validateQuery('status:error', 'datadog')).toBeNull()
+      expect(await validateQuery('{"query":{"match_all":{}}}', 'elasticsearch')).toBeNull()
+      expect(await validateQuery('index=main status=error', 'splunk')).toBeNull()
     })
   })
 })
