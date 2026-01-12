@@ -28,13 +28,13 @@
     "highlight.js": "^11.10.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260103.0",
+    "@cloudflare/workers-types": "^4.20260111.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^14.5.2",
-    "@types/react": "^19.2.7",
+    "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
-    "@typescript-eslint/eslint-plugin": "^8.51.0",
+    "@typescript-eslint/eslint-plugin": "^8.52.0",
     "@typescript-eslint/parser": "^8.15.0",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/ui": "^2.1.8",
