@@ -23,7 +23,7 @@
   "dependencies": {
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "lucide-react": "^0.562.0",
+    "lucide-react": "^0.563.0",
     "clsx": "^2.1.1",
     "highlight.js": "^11.10.0"
   },
