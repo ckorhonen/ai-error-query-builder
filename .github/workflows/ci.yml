@@ -3,8 +3,27 @@ name: CI
 on:
   push:
     branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'package*.json'
+      - 'tsconfig.json'
+      - '.github/workflows/**'
+      - '!**/*.md'
   pull_request:
     branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'package*.json'
+      - 'tsconfig.json'
+      - '.github/workflows/**'
+      - '!**/*.md'
+
+# Cancel stale runs
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lint:
@@ -70,7 +89,7 @@ jobs:
         with:
           name: dist
           path: dist/
-          retention-days: 7
+          retention-days: 3
 
   test:
     name: Test
